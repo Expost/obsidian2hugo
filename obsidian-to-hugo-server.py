@@ -88,7 +88,6 @@ class ObsidianToHugo():
                                         shutil.copyfile(ob_files[file_name], dst_path)
                                         # hugo当前目录，图片按50%比例展示
                                         new_content = '<center><img src="./%s" width="50%%" /></center>' %file_name
-                                        print(new_content)
                                         parga_child.content = new_content
 
                                 elif content.startswith("[["): # 本地连接，暂时不做处理
