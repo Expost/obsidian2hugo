@@ -27,9 +27,12 @@ class ObsidianToHugo():
         '''
 
         with MarkdownRenderer() as r:
-            with open(ob_md, "r") as f:
-                doc = mistletoe.Document(f)
-
+            try:
+                with open(ob_md, "r") as f:
+                    doc = mistletoe.Document(f)
+            except Exception as e:
+                print(f"open file {ob_md} failed, err: {e}")
+                return 
             # 确认标签里是否有blog字段
             for index, item in enumerate(doc.children):
                 if isinstance(item, mistletoe.block_token.Paragraph):
@@ -80,14 +83,18 @@ class ObsidianToHugo():
                                     tags[index] = tmp_tags
 
                                 if content.startswith("![["): #图片
-                                    file_name = content[3:-2].split("|")[0].strip()
-                                    print(file_name)
+                                    pic_info = content[3:-2].split("|")
+                                    file_name = pic_info[0].strip()
+                                    pic_size = 100
+                                    if len(pic_info) > 1:
+                                        pic_size = int(pic_info[1]) / 700 # 测试一般情况下Obsidian图片大小为700，不一定准确
+                                    print(file_name, pic_size)
                                     if file_name in ob_files:
                                         dst_path = os.path.join(hugo_article_path, file_name)
                                         print(dst_path)
                                         shutil.copyfile(ob_files[file_name], dst_path)
                                         # hugo当前目录，图片按50%比例展示
-                                        new_content = '<center><img src="./%s" width="50%%" /></center>' %file_name
+                                        new_content = '<center><img src="./%s" width="%d%%" /></center>' %(file_name, pic_size)
                                         parga_child.content = new_content
 
                                 elif content.startswith("[["): # 本地连接，暂时不做处理
